@@ -1,0 +1,101 @@
+name: Developer Workspace Base
+
+on:
+    push:
+        branches:
+            - main
+        paths:
+            - "developer-workspace-base/**"
+            - ".github/workflows/developer-workspace-base.yml"
+
+    pull_request:
+        paths:
+            - "developer-workspace-base/**"
+            - ".github/workflows/developer-workspace-base.yml"
+
+permissions:
+    contents: read
+    packages: write
+
+env:
+    REGISTRY: ghcr.io
+    IMAGE_NAME: ${{github.repository_owner}}/developer-workspace-base
+
+jobs:
+    build:
+        runs-on: ubuntu-latest
+
+        defaults:
+            run:
+                working-directory: developer-workspace-base
+
+        steps:
+            - name: Setup Docker Buildx
+              uses: docker/setup-buildx-action@v3
+
+            - name: Login to github container registry
+              if: github.event_name == 'push'
+              uses: docker/login-action@v3
+              with:
+                  registry: ${{env.REGISTRY}}
+                  username: ${{github.actor}}
+                  password: ${{secrets.GITHUB_TOKEN}}
+
+            - name: Extract OCI metadata
+              id: meta
+              uses: docker/metadata-action@v5
+
+              with:
+                  images: ${{env.REGISTRY}}/${{env.IMAGE_NAME}}
+
+                  tags: |
+                      type=raw,value=latest,enable={{is_default_branch}}
+                      type=sha
+                      type=ref,event=branch
+
+                  labels: |
+                      org.opencontainers.image.title=Developer Workspace Base
+                      org.opencontainers.image.vendor=Edwin Ontiveros
+                      org.opencontainers.image.source=https://github.com/${{github.repository}}
+
+            - name: Build image
+              uses: docker/build-push-action@v6
+
+              with:
+                  context: ./developer-workspace-base
+                  file: ./developer-workspace-base/Dockerfile
+
+                  load: true
+                  push: false
+
+                  tags: developer-workspace-base:bookworm
+
+                  cache-from: type=gha
+                  cache-to: type=gha,mode=max
+
+                  labels: ${{steps.meta.outputs.labels}}
+
+            - name: Run smoke tests
+              run: |
+                  chmod +x tests/smoke.sh
+                  docker run --rm \
+                      -v "${PWD}/tests:/tests:ro" \
+                      developer-workspace-base:test \
+                      bash /tests/smoke.sh
+
+            - name:
+              if: github.event_name == 'push'
+
+              uses: docker/build-push-action@v6
+
+              with:
+                  context: ./developer-workspace-base
+                  file: ./developer-workspace-base/Dockerfile
+
+                  push: true
+
+                  tags: ${{steps.meta.outputs.tags}}
+                  labels: ${{steps.meta.outputs.labels}}
+
+                  cache-from: type=gha
+                  cache-to: type=gha, mode=max
