@@ -1,7 +1,6 @@
 name: Developer Workspace Base
 
 on:
-    workflow_dispatch:
     push:
         branches:
             - mainline
