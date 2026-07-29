@@ -1,0 +1,25 @@
+# Control de versiones
+.git
+.gitignore
+
+# Secretos y credenciales locales
+*.pem
+*.key
+*.secret
+.env
+.env.*
+.aws/
+.gcloud/
+
+# Archivos del sistema operativo host
+.DS_Store
+Thumbs.db
+
+# Configuraciones de editores e IDEs
+.vscode/
+.idea/
+*.swp
+
+# Temporales de empaquetado o pruebas locales
+*.log
+.cache/
