@@ -3,7 +3,7 @@ name: Developer Workspace Base
 on:
     push:
         branches:
-            - main
+            - mainline
         paths:
             - "developer-workspace-base/**"
             - ".github/workflows/developer-workspace-base.yml"
