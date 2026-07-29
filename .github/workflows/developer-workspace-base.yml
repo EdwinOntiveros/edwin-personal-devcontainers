@@ -9,6 +9,8 @@ on:
             - ".github/workflows/developer-workspace-base.yml"
 
     pull_request:
+        branches:
+            - mainline
         paths:
             - "images/developer-workspace-base/**"
             - ".github/workflows/developer-workspace-base.yml"
