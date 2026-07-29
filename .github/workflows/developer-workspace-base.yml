@@ -1,16 +1,19 @@
 name: Developer Workspace Base
 
 on:
+    workflow_dispatch:
     push:
         branches:
             - mainline
         paths:
-            - "developer-workspace-base/**"
+            - "images/developer-workspace-base/**"
             - ".github/workflows/developer-workspace-base.yml"
 
     pull_request:
+        branches:
+            - mainline
         paths:
-            - "developer-workspace-base/**"
+            - "images/developer-workspace-base/**"
             - ".github/workflows/developer-workspace-base.yml"
 
 permissions:
@@ -27,9 +30,12 @@ jobs:
 
         defaults:
             run:
-                working-directory: developer-workspace-base
+                working-directory: images/developer-workspace-base
 
         steps:
+            - name: Checkout repository
+              uses: actions/checkout@v5
+
             - name: Setup Docker Buildx
               uses: docker/setup-buildx-action@v3
 
@@ -62,13 +68,13 @@ jobs:
               uses: docker/build-push-action@v6
 
               with:
-                  context: ./developer-workspace-base
-                  file: ./developer-workspace-base/Dockerfile
+                  context: ./images/developer-workspace-base
+                  file: ./images/developer-workspace-base/Dockerfile
 
                   load: true
                   push: false
 
-                  tags: developer-workspace-base:bookworm
+                  tags: developer-workspace-base:test
 
                   cache-from: type=gha
                   cache-to: type=gha,mode=max
@@ -83,14 +89,14 @@ jobs:
                       developer-workspace-base:test \
                       bash /tests/smoke.sh
 
-            - name:
+            - name: Publish Image to GHCR
               if: github.event_name == 'push'
 
               uses: docker/build-push-action@v6
 
               with:
-                  context: ./developer-workspace-base
-                  file: ./developer-workspace-base/Dockerfile
+                  context: ./images/developer-workspace-base
+                  file: ./images/developer-workspace-base/Dockerfile
 
                   push: true
 
@@ -98,4 +104,4 @@ jobs:
                   labels: ${{steps.meta.outputs.labels}}
 
                   cache-from: type=gha
-                  cache-to: type=gha, mode=max
+                  cache-to: type=gha,mode=maxea
