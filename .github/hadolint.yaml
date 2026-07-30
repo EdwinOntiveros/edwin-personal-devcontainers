@@ -1,0 +1,12 @@
+failure-threshold: warning
+
+ignored:
+  # ignore using latest tag instead of sha digest
+  - DL3007
+  # encourage pin apt package versions as a warning, debian package updates preferred
+  - DL3008
+
+override:
+  warning:
+    # encourage --no-install-recommends
+    - DL3015
