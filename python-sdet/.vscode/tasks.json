@@ -1,0 +1,111 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "uv: sync",
+            "type": "shell",
+            "command": "uv",
+            "args": [
+                "sync"
+            ],
+            "group": "build",
+            "problemMatcher": []
+        },
+        {
+            "label": "ruff: format",
+            "type": "shell",
+            "command": "uv",
+            "args": [
+                "run",
+                "ruff",
+                "format",
+                "."
+            ],
+            "group": "build"
+        },
+        {
+            "label": "ruff: check",
+            "type": "shell",
+            "command": "uv",
+            "args": [
+                "run",
+                "ruff",
+                "check",
+                "."
+            ],
+            "group": "test"
+        },
+        {
+            "label": "ruff: fix",
+            "type": "shell",
+            "command": "uv",
+            "args": [
+                "run",
+                "ruff",
+                "check",
+                ".",
+                "--fix"
+            ]
+        },
+        {
+            "label": "mypy",
+            "type": "shell",
+            "command": "uv run mypy .",
+            "group": "test"
+        },
+        {
+            "label": "pytest",
+            "type": "shell",
+            "command": "uv",
+            "args": [
+                "run",
+                "pytest"
+            ],
+            "group": {
+                "kind": "test",
+                "isDefault": true
+            }
+        },
+        {
+            "label": "pytest: coverage",
+            "type": "shell",
+            "command": "uv",
+            "args": [
+                "run",
+                "pytest",
+                "--cov=src",
+                "--cov-report=term-missing",
+                "--cov-report=html"
+            ]
+        },
+        {
+            "label": "playwright",
+            "type": "shell",
+            "command": "uv",
+            "args": [
+                "run",
+                "pytest",
+                "--headed"
+            ]
+        },
+        {
+            "label": "clean",
+            "type": "shell",
+            "command": "bash",
+            "args": [
+                "-c",
+                "rm -rf .pytest_cache .ruff_cache .mypy_cache htmlcov .coverage reports "
+            ]
+        },
+        {
+            "label": "quality",
+            "dependsOrder": "sequence",
+            "dependsOn": [
+                "ruff: format",
+                "ruff: check",
+                "mypy",
+                "playwright"
+            ]
+        }
+    ]
+}

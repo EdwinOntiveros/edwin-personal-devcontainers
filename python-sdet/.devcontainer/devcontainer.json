@@ -1,0 +1,129 @@
+{
+    // name shown inside VSCode.
+    "name": "Python SDET devcontainer",
+    // Docker compose file, here we delegate multi container configuration
+    // instead of using a single docker file.
+    "dockerComposeFile": "docker-compose.yaml",
+    // Which docker service VSCode attaches to.
+    "service": "dev",
+    // Folder inside the container that becomes the workspace.
+    "workspaceFolder": "/workspace",
+    // Stop the entire compose stack when VSCode closes.
+    "shutdownAction": "stopCompose",
+    // Non-root identity that VSCode will use after attaching
+    // NEVER DEVELOP AS ROOT.
+    "remoteUser": "python-sdet",
+    // mount a volume for persistent UV caching
+    "mounts": [
+        "source=uv-cache-volume,target=/home/python-sdet/.cache/uv,type=volume"
+    ],
+    // assign non-root user permissions for uv-cache mount
+    "postStartCommand": "sudo chown -R python-sdet:python-sdet /home/python-sdet/.cache/uv",
+    // Keep UID / GID synchronized with the linux server.
+    // Prevents permission issues when editing mounted files.
+    "updateRemoteUserUID": true,
+    "containerEnv": {
+        "DOCKER_BUILDKIT": "1",
+        "UV_PROJECT_ENVIRONMENT": "${containerWorkspaceFolder}/.venv",
+    },
+    // VSCode standard configurations
+    "customizations": {
+        "vscode": {
+            // default extensions to make VSCode python development
+            // work out of the box when connected to the container.
+            "extensions": [
+                // python support
+                "ms-python.python",
+                // Pylance language server
+                "ms-python.vscode-pylance",
+                // Mypy type checking support
+                "matangover.mypy",
+                // ruff integration
+                "charliermarsh.ruff",
+                // Playwright extension
+                "ms-playwright.playwright",
+                // Docker integration
+                "ms-azuretools.vscode-docker",
+                // Github actions syntax
+                "github.vscode-github-actions",
+                // YAML support
+                "redhat.vscode-yaml",
+                // Editorconfig support
+                "editorconfig.editorconfig",
+                // Gitlens
+                "eamodio.gitlens",
+                // Error lens: for better error messages
+                "usernamehw.errorlens",
+                // TOML configuration language support
+                "tamasfe.even-better-toml",
+                // Docker Container administration
+                "docker.docker",
+                // Kubernetes cluster administration
+                "ms-kubernetes-tools.vscode-kubernetes-tools",
+                // Python debugger
+                "ms-python.debugpy",
+                // Python environment isolation
+                "ms-python.vscode-python-envs",
+                // Devcontainer support
+                "ms-azuretools.vscode-containers",
+                // VIM emulation layer
+                "vscodevim.vim"
+            ],
+            "settings": {
+                ///////////////////
+                // Python settings
+                ///////////////////
+                "python-envs.alwaysUseUv": true,
+                "python.defaultInterpreterPath": "${containerWorkspaceFolder}/.venv/bin/python",
+                "python.terminal.activateEnvInCurrentTerminal": true,
+                // Python testing configuration
+                "python.testing.pytestEnabled": true,
+                "python.testing.unittestEnabled": false,
+                "python.testing.debugPort": 9876,
+                "python.testing.pytestArgs": [
+                    "tests"
+                ],
+                //////////////////////////
+                // Ruff formatter settings
+                //////////////////////////
+                "ruff.enable": true,
+                "ruff.nativeServer": "on",
+                "ruff.lint.enable": false,
+                "editor.defaultFormatter": "charliermarsh.ruff",
+                ///////////////////
+                // Pylance settings
+                ///////////////////
+                "python.languageServer": "Pylance",
+                "python.analysis.typeCheckingMode": "basic",
+                //////////////////////////
+                // Editor on-save actions
+                //////////////////////////
+                "editor.formatOnSave": true,
+                "editor.codeActionsOnSave": {
+                    "source.organizeImports": "always",
+                    "source.fixAll": "always"
+                },
+                /////////////////////////////////
+                // File formatting configuration
+                /////////////////////////////////
+                "files.encoding": "utf8",
+                "files.eol": "\n",
+                "files.trimTrailingWhitespace": true,
+                "files.insertFinalNewline": true,
+                /////////////////////////////////
+                // Default terminal profile
+                /////////////////////////////////
+                "terminal.integrated.defaultProfile.linux": "bash"
+            }
+        }
+    },
+    "forwardPorts": [
+        9876
+    ],
+    "portsAttributes": {
+        "9876": {
+            "label": "Python testing port",
+            "onAutoForward": "notify"
+        }
+    }
+}

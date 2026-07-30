@@ -1,0 +1,157 @@
+{
+    // -----------------------------
+    // Python
+    // -----------------------------
+    "python.defaultInterpreterPath": "${workspaceFolder}/.venv/bin/python",
+    "python.terminal.activateEnvironment": true,
+    "python.terminal.useEnvFile": true,
+    "python.createEnvironment.trigger": "off",
+    // -----------------------------
+    // Testing
+    // -----------------------------
+    "python.testing.pytestEnabled": true,
+    "python.testing.unittestEnabled": false,
+    "python.testing.pytestArgs": [
+        "tests"
+    ],
+    // -----------------------------
+    // Pylance
+    // -----------------------------
+    "python.analysis.typeCheckingMode": "basic",
+    "python.analysis.autoIndent": true,
+    "python.analysis.autoFormatStrings": true,
+    "python.analysis.autoSplitStrings": true,
+    "python.analysis.autoImportCompletions": true,
+    "python.analysis.completeFunctionParens": true,
+    "python.analysis.inlayHints.callArgumentNames": "partial",
+    "python.analysis.inlayHints.functionReturnTypes": true,
+    "python.analysis.inlayHints.variableTypes": true,
+    "python.analysis.inlayHints.pytestParameters": true,
+    "python.analysis.diagnosticSeverityOverrides": {
+        "reportCallIssue": "none"
+    },
+    // -----------------------------
+    // Ruff
+    // -----------------------------
+    "ruff.enable": true,
+    "ruff.nativeServer": "on",
+    "ruff.organizeImports": true,
+    // -----------------------------
+    // Formatting
+    // -----------------------------
+    "editor.rulers": [
+        {
+            "color": "#00acbb",
+            "column": 100
+        }
+    ],
+    "[python]": {
+        "editor.defaultFormatter": "charliermarsh.ruff",
+        "editor.formatOnSave": true,
+        "editor.formatOnPaste": true,
+        "editor.codeActionsOnSave": {
+            "source.fixAll.ruff": "explicit",
+            "source.organizeImports": "explicit",
+        },
+        "editor.wordWrapColumn": 100,
+        "editor.wordWrap": "wordWrapColumn",
+    },
+    /////////////////
+    // markdown
+    /////////////////
+    "markdownlint.config": {
+        "MD013": false,
+        "MD033": false,
+    },
+    "[markdown]": {
+        "editor.rulers": [
+            {
+                "color": "#00acbb",
+                "column": 120
+            }
+        ],
+        "editor.wordWrap": "on",
+        "editor.wordWrapColumn": 120,
+        "editor.unicodeHighlight.ambiguousCharacters": false,
+        "editor.unicodeHighlight.invisibleCharacters": false,
+        "diffEditor.ignoreTrimWhitespace": false,
+        "editor.defaultFormatter": "DavidAnson.vscode-markdownlint",
+        "editor.formatOnSave": true,
+        "editor.codeActionsOnSave": {
+            "source.fixAll.markdownlint": "explicit"
+        },
+        "editor.quickSuggestions": {
+            "comments": "off",
+            "strings": "off",
+            "other": "off"
+        },
+    },
+    // -----------------------------
+    // Editor
+    // -----------------------------
+    "editor.tabSize": 4,
+    "editor.insertSpaces": true,
+    "editor.tabCompletion": "on",
+    "editor.useTabStops": true,
+    "editor.stickyTabStops": true,
+    "editor.detectIndentation": false,
+    "editor.minimap.enabled": false,
+    "editor.renderWhitespace": "boundary",
+    "editor.guides.indentation": true,
+    "editor.guides.bracketPairs": true,
+    "editor.bracketPairColorization.enabled": true,
+    "editor.linkedEditing": true,
+    "editor.smoothScrolling": true,
+    "editor.cursorBlinking": "smooth",
+    "editor.cursorSmoothCaretAnimation": "on",
+    "editor.stickyScroll.enabled": true,
+    "editor.inlineSuggest.enabled": true,
+    "editor.codeLens": true,
+    "editor.occurrencesHighlight": "singleFile",
+    // -----------------------------
+    // Files
+    // -----------------------------
+    "files.trimTrailingWhitespace": true,
+    "files.insertFinalNewline": true,
+    "files.trimFinalNewlines": true,
+    "files.eol": "\n",
+    "files.exclude": {
+        "**/__pycache__": true,
+        "**/.pytest_cache": true,
+        "**/.ruff_cache": true,
+        "**/.mypy_cache": true,
+        "**/.coverage": true,
+        "**/htmlcov": true,
+        "**/.DS_Store": true
+    },
+    // -----------------------------
+    // Explorer
+    // -----------------------------
+    "explorer.compactFolders": false,
+    // -----------------------------
+    // Terminal
+    // -----------------------------
+    "terminal.integrated.defaultProfile.linux": "bash",
+    // -----------------------------
+    // Git
+    // -----------------------------
+    "git.autofetch": true,
+    // -----------------------------
+    // Search
+    // -----------------------------
+    "search.exclude": {
+        "**/__pycache__": true,
+        "**/.pytest_cache": true,
+        "**/.ruff_cache": true,
+        "**/.mypy_cache": true,
+        "**/.venv": true
+    },
+    // ----------------------------
+    // Extensions config
+    // ----------------------------
+    "evenBetterToml.schema.associations": {
+        "pyproject.toml": "https://json.schemastore.org/pyproject.json"
+    },
+    "cSpell.words": [],
+    "cSpell.ignoreWords": []
+}
