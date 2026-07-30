@@ -25,9 +25,32 @@ env:
     IMAGE_NAME: ${{github.repository_owner}}/developer-workspace-base
 
 jobs:
-    build:
+    lint:
         runs-on: ubuntu-latest
 
+        steps:
+            - name: Checkout repository
+              uses: actions/checkout@v5
+            - name: Lint Dockerfile
+              uses: hadolint/hadolint-action@v3.3.0
+              with:
+                  dockerfile: images/developer-workspace-base/Dockerfile
+                  config: .github/hadolint.yaml
+
+            - name: Lint shellscript
+              uses: docker://koalaman/shellcheck:stable
+              with:
+                  args: >
+                      images/developer-workspace-base/tests/smoke.sh
+
+            - name: Lint markdown
+              continue-on-error: true
+              uses: DavidAnson/markdownlint-cli2-action@v20
+
+    build:
+        needs: lint
+
+        runs-on: ubuntu-latest
         defaults:
             run:
                 working-directory: images/developer-workspace-base
@@ -104,4 +127,4 @@ jobs:
                   labels: ${{steps.meta.outputs.labels}}
 
                   cache-from: type=gha
-                  cache-to: type=gha,mode=maxea
+                  cache-to: type=gha,mode=max

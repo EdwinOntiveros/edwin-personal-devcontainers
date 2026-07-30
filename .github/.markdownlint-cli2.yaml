@@ -1,0 +1,13 @@
+default: true
+
+MD009: false # no trailing spaces
+
+MD013: # line length
+  line_length: 100
+  code_blocks: false
+  tables: false
+
+MD022: false # blanks around headings
+MD033: false # inline HTML
+MD041: false # first line heading
+MD060: false # compact tables
