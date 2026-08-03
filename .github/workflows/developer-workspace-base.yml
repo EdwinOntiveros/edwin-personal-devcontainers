@@ -5,14 +5,16 @@ on:
         branches:
             - mainline
         paths:
-            - "images/developer-workspace-base/**"
+            - "images/**"
+            - "tests/**"
             - ".github/workflows/developer-workspace-base.yml"
 
     pull_request:
         branches:
             - mainline
         paths:
-            - "images/developer-workspace-base/**"
+            - "images/**"
+            - "tests/**"
             - ".github/workflows/developer-workspace-base.yml"
 
 permissions:
@@ -21,7 +23,8 @@ permissions:
 
 env:
     REGISTRY: ghcr.io
-    IMAGE_NAME: ${{github.repository_owner}}/developer-workspace-base
+    IMAGE: developer-workspace-base
+    IMAGE_NAME: ${{ github.repository_owner }}/developer-workspace-base
 
 jobs:
     lint:
@@ -30,51 +33,48 @@ jobs:
         steps:
             - name: Checkout repository
               uses: actions/checkout@v5
-            - name: Lint Dockerfile
-              uses: hadolint/hadolint-action@v3.3.0
-              with:
-                  dockerfile: images/developer-workspace-base/Dockerfile
-                  config: .github/hadolint.yaml
 
-            - name: Lint shellscript
-              uses: docker://koalaman/shellcheck:stable
-              with:
-                  args: >
-                      images/developer-workspace-base/tests/smoke.sh
-
-            - name: Lint markdown
+            - name: Lint Markdown
               continue-on-error: true
               uses: DavidAnson/markdownlint-cli2-action@v20
 
+            - name: Lint Dockerfile
+              uses: hadolint/hadolint-action@v3.3.0
+              with:
+                  dockerfile: images/${{ env.IMAGE }}/Dockerfile
+                  config: .github/hadolint.yaml
+
+            - name: Lint Shell Scripts
+              uses: ludeeus/action-shellcheck@master
+              with:
+                  scandir: tests
+                  severity: warning
+                  check_together: "yes"
+
     build:
         needs: lint
-
         runs-on: ubuntu-latest
-        defaults:
-            run:
-                working-directory: images/developer-workspace-base
 
         steps:
             - name: Checkout repository
               uses: actions/checkout@v5
 
-            - name: Setup Docker Buildx
+            - name: Set up Docker Buildx
               uses: docker/setup-buildx-action@v3
 
-            - name: Login to github container registry
+            - name: Login to GitHub Container Registry
               if: github.event_name == 'push'
               uses: docker/login-action@v3
               with:
-                  registry: ${{env.REGISTRY}}
-                  username: ${{github.actor}}
-                  password: ${{secrets.GITHUB_TOKEN}}
+                  registry: ${{ env.REGISTRY }}
+                  username: ${{ github.actor }}
+                  password: ${{ secrets.GITHUB_TOKEN }}
 
             - name: Extract OCI metadata
               id: meta
               uses: docker/metadata-action@v5
-
               with:
-                  images: ${{env.REGISTRY}}/${{env.IMAGE_NAME}}
+                  images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
 
                   tags: |
                       type=raw,value=latest,enable={{is_default_branch}}
@@ -84,46 +84,49 @@ jobs:
                   labels: |
                       org.opencontainers.image.title=Developer Workspace Base
                       org.opencontainers.image.vendor=Edwin Ontiveros
-                      org.opencontainers.image.source=https://github.com/${{github.repository}}
+                      org.opencontainers.image.source=https://github.com/${{ github.repository }}
 
             - name: Build image
               uses: docker/build-push-action@v6
-
               with:
-                  context: ./images/developer-workspace-base
-                  file: ./images/developer-workspace-base/Dockerfile
+                  context: .
+                  file: images/${{ env.IMAGE }}/Dockerfile
 
                   load: true
                   push: false
 
-                  tags: developer-workspace-base:test
+                  tags: ${{ env.IMAGE }}:test
 
                   cache-from: type=gha
                   cache-to: type=gha,mode=max
 
-                  labels: ${{steps.meta.outputs.labels}}
+                  labels: ${{ steps.meta.outputs.labels }}
+
+            - name: Verify Workspace
+              run: |
+                  git rev-parse HEAD
+                  find tests -type f | sort
 
             - name: Run smoke tests
               run: |
-                  chmod +x tests/smoke.sh
+                  chmod +x tests/images/${{ env.IMAGE }}/smoke.sh
+
                   docker run --rm \
-                      -v "${PWD}/tests:/tests:ro" \
-                      developer-workspace-base:test \
-                      bash /tests/smoke.sh
+                    -v "${{ github.workspace }}/tests:/tests:ro" \
+                    ${{ env.IMAGE }}:test \
+                    bash /tests/images/${{ env.IMAGE }}/smoke.sh
 
-            - name: Publish Image to GHCR
+            - name: Publish image to GHCR
               if: github.event_name == 'push'
-
               uses: docker/build-push-action@v6
-
               with:
-                  context: ./images/developer-workspace-base
-                  file: ./images/developer-workspace-base/Dockerfile
+                  context: .
+                  file: images/${{ env.IMAGE }}/Dockerfile
 
                   push: true
 
-                  tags: ${{steps.meta.outputs.tags}}
-                  labels: ${{steps.meta.outputs.labels}}
+                  tags: ${{ steps.meta.outputs.tags }}
+                  labels: ${{ steps.meta.outputs.labels }}
 
                   cache-from: type=gha
                   cache-to: type=gha,mode=max
