@@ -24,7 +24,7 @@ permissions:
 env:
     REGISTRY: ghcr.io
     IMAGE: developer-workspace-base
-    IMAGE_NAME: ${{ github.repository_owner }}/developer-workspace-base
+    IMAGE_NAME: edwinontiveros/developer-workspace-base
 
 jobs:
     lint:
