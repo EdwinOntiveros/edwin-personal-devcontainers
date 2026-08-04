@@ -102,5 +102,5 @@ WORKDIR /workspace
 USER ${USERNAME}
 
 # small common git configs
-RUN git config --global init.defaultBranch mainline
-RUN git config --global core.editor vim
+RUN git config --global init.defaultBranch mainline \
+    && git config --global core.editor vim
