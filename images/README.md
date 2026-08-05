@@ -96,14 +96,14 @@ These belong in derived images.
 
 ## Default Environment
 
-| Variable | Value |
-| -------- | ----- |
-| `LANG` | `en_US.UTF-8` |
-| `LC_ALL` | `en_US.UTF-8` |
-| `LANGUAGE` | `en_US:en` |
-| `TERM` | `xterm-256color` |
-| `EDITOR` | `vim` |
-| `VISUAL` | `vim` |
+| Variable   | Value            |
+| ---------- | ---------------- |
+| `LANG`     | `en_US.UTF-8`    |
+| `LC_ALL`   | `en_US.UTF-8`    |
+| `LANGUAGE` | `en_US:en`       |
+| `TERM`     | `xterm-256color` |
+| `EDITOR`   | `vim`            |
+| `VISUAL`   | `vim`            |
 
 ---
 
@@ -111,12 +111,12 @@ These belong in derived images.
 
 The image runs as a non-root user.
 
-| Property | Value |
-| -------- | ----- |
-| Username | `developer` |
-| Shell | `/bin/bash` |
-| Home | `/home/developer` |
-| Workspace | `/workspace` |
+| Property  | Value             |
+| --------- | ----------------- |
+| Username  | `developer`       |
+| Shell     | `/bin/bash`       |
+| Home      | `/home/developer` |
+| Workspace | `/workspace`      |
 
 ---
 
@@ -187,11 +187,11 @@ Future releases will integrate:
 
 ## Repository Roadmap
 
-- ✅ Developer Workspace Base (2026-07-27)
+- ✅ Developer Workspace Base (08/04/2025)
+- ⏳ Fullstack .NET + Typescript (WIP)
 - ⏳ Python Development Image
 - ⏳ Python + Playwright Image
 - ⏳ C++ Development Image
-- ⏳ .NET Development Image
 - ⏳ TypeScript Development Image
 - ⏳ VS Code Dev Containers
 - ⏳ Docker Compose service templates

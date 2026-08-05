@@ -14,7 +14,7 @@ include_once "git_config_tests" || return 0
 
 _validate_git_config() {
     test "$(git config --global --get init.defaultBranch)" = "mainline"
-    test "$(git config --global --get core.editor)" = "vim"
+    test "$(git config --global --get core.editor)" = "vim.tiny"
 }
 
 test_git_config() {

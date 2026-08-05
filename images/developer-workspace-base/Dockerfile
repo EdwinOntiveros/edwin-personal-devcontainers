@@ -28,8 +28,8 @@ ENV LANG=en_US.UTF-8
 ENV LC_ALL=en_US.UTF-8
 ENV LANGUAGE=en_US:en
 ENV TERM=xterm-256color
-ENV EDITOR=vim
-ENV VISUAL=vim
+ENV EDITOR=vim.tiny
+ENV VISUAL=vim.tiny
 
 #-----------------------------------------
 # Common developer tools
@@ -103,4 +103,4 @@ USER ${USERNAME}
 
 # small common git configs
 RUN git config --global init.defaultBranch mainline \
-    && git config --global core.editor vim
+    && git config --global core.editor vim.tiny
