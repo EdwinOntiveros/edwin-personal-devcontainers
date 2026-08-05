@@ -13,6 +13,6 @@
 include_once "envsettings_tests" || return 0
 
 test_envsettings() {
-    check "Check EDITOR" test "$EDITOR" = "vim"
-    check "Check VISUAL" test "$VISUAL" = "vim"
+    check "Check EDITOR" test "$EDITOR" = "vim.tiny"
+    check "Check VISUAL" test "$VISUAL" = "vim.tiny"
 }
