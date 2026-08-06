@@ -1,0 +1,107 @@
+name: Container Metadata Setup Workflow
+
+on:
+    workflow_call:
+        inputs:
+            image:
+                description: Container image name
+                required: true
+                type: string
+
+        outputs:
+            registry:
+                description: Container registry
+                value: ${{ jobs.metadata.outputs.registry }}
+
+            owner:
+                description: Lowercase image owner
+                value: ${{ jobs.metadata.outputs.owner }}
+
+            repository:
+                description: Lowercase repository name
+                value: ${{ jobs.metadata.outputs.repository }}
+
+            image:
+                description: Full image reference string
+                value: ${{ jobs.metadata.outputs.image }}
+
+            validation_tag:
+                description: Image validation tag
+                value: ${{ jobs.metadata.outputs.validation_tag }}
+
+            artifact_name:
+                description: Artifact name
+                value: ${{ jobs.metadata.outputs.artifact_name }}
+
+            oci_labels:
+                description: OCI labels
+                value: ${{ jobs.metadata.outputs.oci_labels }}
+
+    jobs:
+        metadata:
+            runs-on: ubuntu-latest
+
+            outputs:
+                registry:
+                    value: ${{ steps.generate.outputs.registry }}
+
+                owner:
+                    value: ${{ steps.generate.outputs.owner }}
+
+                repository:
+                    value: ${{ steps.generate.outputs.repository }}
+
+                image:
+                    value: ${{ steps.generate.outputs.image }}
+
+                validation_tag:
+                    value: ${{ steps.generate.outputs.validation_tag }}
+
+                artifact_name:
+                    value: ${{ steps.generate.outputs.artifact_name }}
+
+                oci_labels:
+                    value: ${{ steps.generate.outputs.oci_labels }}
+
+        steps:
+            - name: Generate Container Metadata
+              id: generate
+              shell: bash
+
+              env:
+                  IMAGE_NAME: ${{ inputs.IMAGE_NAME }}
+                  ENV_NAME: ${{ vars.ENV_NAME }}
+
+              run: |
+                  OWNER=$(echo "${GITHUB_REPOSITORY_OWNER}" | tr '[:upper:]' '[:lower:]')
+                  REPOSITORY=$(echo "${GITHUB_REPOSITORY}" | tr '[:upper:]' '[:lower:]')
+                  REGISTRY=ghcr.io
+
+                  IMAGE="${REGISTRY}/${OWNER}/${IMAGE_NAME}"
+                  VALIDATION_TAG:"${IMAGE}:${ENV_NAME}-validation"
+                  ARTIFACT_NAME="image-${IMAGE_NAME}"
+
+                  OCI_LABELS=$(cat<<EOF
+                  org.opencontainers.image.title=${IMAGE_NAME}
+                  org.opencontainers.image.description=Reusable development container image
+                  org.opencontainers.image.vendor=${OWNER}
+                  org.opencontainers.image.source=https://github.com/${REPOSITORY}
+                  org.opencontainers.image.revision=${{ github.sha }}
+                  EOF
+                  )
+
+                  echo "registry=${REGISTRY}" >> "$GITHUB_OUTPUT"
+                  echo "owner=${OWNER}" >> "$GITHUB_OUTPUT"
+                  echo "repository=${REPOSITORY}" >> "$GITHUB_OUTPUT"
+                  echo "image=${IMAGE}" >> "$GITHUB_OUTPUT"
+                  echo "validation_tag=${VALIDATION_TAG}" >> "$GITHUB_OUTPUT"
+                  echo "artifact_name=${ARTIFACT_NAME}" >> "$GITHUB_OUTPUT"
+
+                  {
+                    echo "oci_labels<<EOF"
+                    echo "${OCI_LABELS}"
+                    echo "EOF"
+                  } >> "$GITHUB_OUTPUT"
+
+                  echo "Image: ${IMAGE}"
+                  echo "Validation tag: ${VALIDATION_TAG}"

@@ -1,0 +1,11 @@
+name: Test Reusable Container Build
+
+on: workflow_dispatch
+
+jobs:
+    build-test:
+        uses: ./.github/workflows/reusable/container-build.yml
+        with:
+            image: development-workspace-base
+            environment: development
+        secrets: inherit

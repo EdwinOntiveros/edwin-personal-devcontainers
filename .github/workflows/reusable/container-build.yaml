@@ -1,0 +1,63 @@
+name: Reusable Container Build Workflow
+
+on:
+    workflow_call:
+        inputs:
+            image:
+                required: true
+                type: string
+
+            environment:
+                required: true
+                type: string
+
+    jobs:
+        metadata:
+            uses: ./.github/workflows/reusable/container-metadata.yaml
+            with:
+                image: ${{ inputs.image }}
+
+        build:
+            needs: metadata
+            runs-on: ubuntu-latest
+            environment:
+                name: ${{ inputs.environment }}
+
+            steps:
+                - name: Checkout Repository
+                  uses: actions/checkout@v7
+
+                - name: Setup Docker Buildx
+                  uses: docker/setup-buildx-action@v4
+
+                - name: Build Image
+                  uses: docker/build-push-action@v7
+                  with:
+                      context: .
+                      file: images/${{inputs.image}}/Dockerfile
+                      load: true
+                      push: false
+                      tags: |
+                          ${{ needs.metadata.outputs.validation_tag }}
+                      labels: |
+                          ${{ needs.metadata.outputs.oci_labels}}
+                      cache-from: type=gha
+                      cache-to: type=gha,mode=max
+
+                - name: Verify Image
+                  run: |
+                      docker image inspect \
+                          ${{ needs.metadata.outputs.validation_tag }}
+
+                - name: Export Tested Image
+                  run: |
+                      docker save \
+                          ${{ needs.metadata.outputs.validation_tag }} \
+                          | gzip > "/tmp/${{ inputs.image }}.tar.gz"
+
+                - name: Upload Artifact
+                  uses: actions/upload-artifact@v7
+                  with:
+                      name: ${{ needs.metadata.outputs.artifact_name }}
+                      path: /tmp/${{inputs.image}}.tar.gz
+                      retention-days: 1
