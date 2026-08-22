@@ -22,3 +22,6 @@ source "${HELPERS_DIR}/tool-check.sh"
 
 # shellcheck disable=SC1091
 source "${HELPERS_DIR}/trap-handler.sh"
+
+# shellcheck disable=SC1091
+source "${HELPERS_DIR}/smoke-cascade.sh"
