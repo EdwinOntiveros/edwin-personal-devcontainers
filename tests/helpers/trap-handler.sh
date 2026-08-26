@@ -13,12 +13,15 @@ include_once "trap_handler" || exit 0
 
 on_error() {
     local rc=$?
+    local command="${BASH_COMMAND}"
+    local line="${BASH_LINENO[0]}"
+    local function="${FUNCNAME[1]:-main}"
 
     echo
     echo "⛔ ERROR (exit ${rc})"
-    echo "Line: ${BASH_LINENO[0]}"
-    echo "Command: ${BASH_COMMAND}"
-    echo "Function: ${FUNCNAME[1]:-main}"
+    echo "Line: ${line}"
+    echo "Command: ${command}"
+    echo "Function: ${function}"
 
     echo
     echo "Function stack:"
