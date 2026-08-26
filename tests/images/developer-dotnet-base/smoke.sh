@@ -34,17 +34,10 @@ echo "======================= Check is running inside container image ==========
 
 check "Running inside container" test -f /.dockerenv
 
-echo
-echo "======================= Developer Workspace Base =================================="
+echo "======================= Parent image regression =================================="
 
-test_devtools
-test_image_identity
-test_nonroot
-test_passwordless_sudo
-test_sudo_equivalence
-test_git_config
-test_locale
-test_envsettings
+test_parent_smoke \
+    "images/developer-workspace-base/smoke.sh"
 
 echo
 echo "======================= Test dotnet build tools =================================="
