@@ -45,6 +45,7 @@ print_summary() {
         echo "${yellow}Status${reset}: ${red}FAILURE${reset}"
         return 1
     fi
-        echo "${yellow}Status${reset}: ${green}SUCCESS${reset}"
+    echo "${yellow}Status${reset}: ${green}SUCCESS${reset}"
     echo "========================================"
+    return 0
 }

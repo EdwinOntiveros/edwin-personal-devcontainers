@@ -38,3 +38,6 @@ source "${SUITES_DIR}/envsettings.sh"
 
 # shellcheck disable=SC1091
 source "${SUITES_DIR}/python.sh"
+
+# shellcheck disable=SC1091
+source "${SUITES_DIR}/dotnet.sh"

@@ -41,6 +41,8 @@ _validate_uv_managed_python() {
     python_path="$(readlink -f "$(command -v python)")"
     managed_path="$(readlink -f "$(uv python find "${PYTHON_VERSION}")")"
 
+    test -n "${python_path}"
+    test -n "${managed_path}"
     test "${python_path}" = "${managed_path}"
 }
 

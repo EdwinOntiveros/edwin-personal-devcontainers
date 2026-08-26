@@ -14,6 +14,6 @@ test_parent_smoke() {
     local parent_smoke="$1"
 
     check \
-        "Run parent smoke test: ${parent_smoke}" \
+        "Run parent image smoke test: ${parent_smoke}" \
         bash "${TEST_ROOT}/${parent_smoke}"
 }
