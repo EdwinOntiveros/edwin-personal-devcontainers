@@ -5,6 +5,8 @@ ignored:
   - DL3007
   # encourage pin apt package versions as a warning, debian package updates preferred
   - DL3008
+  # USER_GID derives from USER_UID and contains no sensitive data.
+  - DL3064
 
 override:
   warning:

@@ -1,0 +1,132 @@
+name: Development environment pipeline orchestrator
+
+on:
+  push: &shared_config
+    branches:
+      - development
+      - "dev/**"
+      - "patch/**"
+      - "hotfix/**"
+      - "feature/**"
+    paths:
+      - "images/**"
+      - "scripts/**"
+      - "tests/**"
+      - ".github/**"
+      - "*.md"
+      - "**/*.md"
+      - ".markdownlint-cli2.yaml"
+      - ".hadolint.yml"
+      - ".shellcheckrc"
+
+  pull_request: *shared_config
+
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: development-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  lint:
+    name: Lint Repository
+    runs-on: ubuntu-latest
+
+    environment:
+      name: development
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v7
+
+      - name: Run Shellcheck Linter
+        uses: ludeeus/action-shellcheck@2.0.0
+        with:
+          scandir: .
+          severity: warning
+
+      - name: Run Markdown Linter
+        continue-on-error: true
+        uses: DavidAnson/markdownlint-cli2-action@v24
+        with:
+          config: .github/.markdownlint-cli2.yaml
+          globs: |
+            **/*.md
+            !**/node_modules/**
+            !**/.git/**
+  discover-images:
+    name: Discover Container Images
+    runs-on: ubuntu-latest
+
+    environment:
+      name: development
+
+    needs:
+      - lint
+
+    outputs:
+      matrix: ${{ steps.images.outputs.matrix }}
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v7
+
+      - name: Prepare Helper Scripts
+        shell: bash
+        env:
+          SCRIPTS_ROOT: scripts
+        run: |
+          chmod +x ${SCRIPTS_ROOT}/prepare-scripts.sh
+          "${SCRIPTS_ROOT}/prepare-scripts.sh"
+
+      - name: Discover Container Images
+        id: images
+        shell: bash
+        env:
+          GHA_SCRIPTS: scripts/gha
+        run: |
+          "${GHA_SCRIPTS}/docker/discover-container-images.sh"
+
+  lint-dockerfiles:
+    name: Lint ${{ matrix.image_name }}
+    runs-on: ubuntu-latest
+
+    environment:
+      name: development
+
+    needs:
+      - discover-images
+
+    strategy:
+      fail-fast: false
+      matrix: ${{ fromJson(needs.discover-images.outputs.matrix) }}
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v7
+
+      - name: Run Dockerfile Linter
+        uses: hadolint/hadolint-action@v3.5.0
+        with:
+          dockerfile: images/${{ matrix.image_name }}/Dockerfile
+          failure-threshold: warning
+          config: .github/.hadolint.yaml
+  build:
+    name: Build ${{ matrix.image_name }}
+
+    needs:
+      - discover-images
+      - lint-dockerfiles
+
+    strategy:
+      fail-fast: false
+      matrix: ${{ fromJson(needs.discover-images.outputs.matrix) }}
+
+    uses: ./.github/workflows/reusable-image-build.yaml
+    with:
+      image_name: ${{ matrix.image_name }}
+      environment_name: development
+      scripts_root: scripts

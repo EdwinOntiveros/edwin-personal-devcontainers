@@ -9,7 +9,6 @@
 # - .NET SDK validation
 # - MSBuild validation
 # - NuGet validation
-# - project creation/build/test validation
 #
 ###############################################################################
 

@@ -1,0 +1,89 @@
+name: Reusable Image Publish
+
+on:
+  workflow_call:
+    inputs:
+      image_name:
+        description: "Docker image name"
+        type: string
+        required: true
+
+      image_tag:
+        description: "Immutable source image tag"
+        type: string
+        required: true
+
+      channel:
+        description: "Release channel"
+        type: string
+        required: true
+
+      registry:
+        description: "Container registry"
+        type: string
+        required: false
+        default: ghcr.io
+
+      repository_owner:
+        description: "Container registry owner"
+        type: string
+        required: false
+        default: edwinontiveros
+
+    outputs:
+      image_reference:
+        description: "Published image reference"
+        value: ${{ jobs.publish.outputs.image_reference }}
+
+      image_digest:
+        description: "Published image digest"
+        value: ${{ jobs.publish.outputs.image_digest }}
+
+jobs:
+  publish:
+    name: Publish ${{ inputs.image_name }}:${{ inputs.channel }}
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: read
+      packages: write
+
+    outputs:
+      image_reference: ${{ steps.digest.outputs.image_reference }}
+      image_digest: ${{ steps.digest.outputs.image_digest }}
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v7
+
+      - name: Setup Docker Buildx
+        uses: docker/setup-buildx-action@v4
+
+      - name: Generate Image Reference and Digest
+        id: digest
+        run: |
+          echo "TO BE IMPLEMENTED"
+
+      - name: Tag image
+        run: |
+          echo "TO BE IMPLEMENTED"
+
+      - name: Build Image
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+
+      - name: Upload artifact
+        run: |
+          echo "TO BE IMPLEMENTED"
+
+      - name: Package artifact
+        run: |
+          echo "TO BE IMPLEMENTED"
+
+      - name: Publish artifact
+        run: |
+          echo "TO BE IMPLEMENTED"
+
+      - name: Validate Artifact
+        run: |

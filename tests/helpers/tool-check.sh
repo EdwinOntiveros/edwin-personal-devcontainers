@@ -21,32 +21,32 @@ check() {
         test_passed
         printf "✅\n"
         return 0
-    fi
-
-    local status
-    status=$?
-
-    test_failed
-    printf "⛔\n"
-
-    echo
-    echo "  command failed:"
-    echo "      $*"
-    echo
-
-    echo
-    printf "Exit code: %d" "${status}"
-    echo
-
-    echo
-    echo "  Output:"
-    if [[ -n "${output}" ]]; then
-        while IFS= read -r line; do
-            echo "      ${line}"
-        done <<< "${output}"
     else
-        echo "      <no-output>"
-    fi
+        local status
+        status=$?
 
-    return 0
+        test_failed
+        printf "⛔\n"
+
+        echo
+        echo "  command failed:"
+        echo "      $*"
+        echo
+
+        echo
+        printf "Exit code: %d" "${status}"
+        echo
+
+        echo
+        echo "  Output:"
+        if [[ -n "${output}" ]]; then
+            while IFS= read -r line; do
+                echo "      ${line}"
+            done <<< "${output}"
+        else
+            echo "      <no-output>"
+        fi
+
+        return 0
+    fi
 }

@@ -1,0 +1,122 @@
+name: Reusable Image Build
+
+on:
+  workflow_call:
+    inputs:
+      image_name:
+        description: "Docker image name under images/<image_name>"
+        type: string
+        required: true
+
+      environment_name:
+        description: "Target github environment"
+        type: string
+        required: true
+
+      dockerfile:
+        description: "Dockerfile path relative to repository root"
+        type: string
+        required: false
+        default: ""
+
+      scripts_root:
+        description: "Scripts path relative to repository root"
+        type: string
+        required: false
+        default: scripts
+
+    outputs:
+      image_name:
+        description: "Validated image name"
+        value: ${{ jobs.build.outputs.image_name }}
+
+      image_tag:
+        description: "Validated image tag"
+        value: ${{ jobs.build.outputs.image_tag }}
+
+      image_reference:
+        description: "Built image reference"
+        value: ${{ jobs.build.outputs.image_reference }}
+
+      artifact_name:
+        description: "Tested image artifact name"
+        value: ${{ jobs.build.outputs.artifact_name}}
+
+jobs:
+  build:
+    name: Build ${{ inputs.image_name }}
+    runs-on: ubuntu-latest
+
+    environment:
+      name: ${{ inputs.environment_name }}
+
+    permissions:
+      contents: read
+
+    outputs:
+      image_name: ${{ steps.metadata.outputs.image_name }}
+      image_tag: ${{ steps.metadata.outputs.image_tag }}
+      image_reference: ${{ steps.metadata.outputs.image_reference }}
+      artifact_name: ${{ steps.metadata.outputs.artifact_name }}
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v7
+
+      - name: Prepare Helper Scripts
+        env:
+          SCRIPTS_ROOT: ${{ inputs.scripts_root }}
+        run: |
+          chmod +x "${SCRIPTS_ROOT}/prepare-scripts.sh"
+          "${SCRIPTS_ROOT}/prepare-scripts.sh"
+
+      - name: Validate Target Environment
+        env:
+          INPUT_ENVIRONMENT: ${{ inputs.environment_name }}
+        run: |
+          "${{ inputs.scripts_root }}/gha/validate-environment.sh"
+
+      - name: Resolve Image Metadata
+        id: metadata
+        env:
+          INPUT_IMAGE_NAME: ${{ inputs.image_name }}
+          INPUT_DOCKERFILE: ${{ inputs.dockerfile }}
+          GITHUB_SHA: ${{ github.sha }}
+          GHA_SCRIPTS: ${{ inputs.scripts_root }}/gha
+        run: |
+          "${GHA_SCRIPTS}/docker/resolve-image-metadata.sh"
+
+      - name: Setup Docker Buildx
+        uses: docker/setup-buildx-action@v4
+
+      - name: Build Image
+        uses: docker/build-push-action@v7
+        with:
+          context: .
+          file: ${{ steps.metadata.outputs.dockerfile }}
+          load: true
+          push: false
+          tags: |
+            ${{ steps.metadata.outputs.image_reference }}
+          labels: |
+            org.opencontainers.image.title=${{ steps.metadata.outputs.image_name }}
+            org.opencontainers.image.source=https://github.com/${{ github.repository }}
+            org.opencontainers.image.revision=${{ github.sha }}
+          cache-from: type=gha,scope=${{ steps.metadata.outputs.image_name }}
+          cache-to: type=gha,mode=max,scope=${{ steps.metadata.outputs.image_name }}
+
+      - name: Export Tested Image
+        env:
+          IMAGE_REFERENCE: ${{ steps.metadata.outputs.image_reference }}
+          ARTIFACT_NAME: ${{ steps.metadata.outputs.artifact_name }}
+          GHA_SCRIPTS: ${{ inputs.scripts_root }}/gha
+        run: |
+          "${GHA_SCRIPTS}/docker/export-image.sh"
+
+      - name: Upload Image Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ steps.metadata.outputs.artifact_name }}
+          path: /tmp/${{ steps.metadata.outputs.artifact_name }}.tar.gz
+          retention-days: 15
+          if-no-files-found: error
